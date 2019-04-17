@@ -29,7 +29,6 @@ public class LoginActivity extends AppCompatActivity {
         userViewModel.getEmailError().observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String err) {
-                binding.editEmail.requestFocus();
                 binding.editEmail.setError(err);
             }
         });
@@ -37,7 +36,6 @@ public class LoginActivity extends AppCompatActivity {
         userViewModel.getPasswordError().observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String err) {
-                binding.editPassword.requestFocus();
                 binding.editPassword.setError(err);
             }
         });

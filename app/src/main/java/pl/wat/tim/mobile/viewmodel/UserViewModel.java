@@ -41,9 +41,7 @@ public class UserViewModel extends ViewModel {
     }
 
     public void onLoginClick() {
-        //TODO don't use setter, add method to User  and remove lombok annotation above User class
-        user.setEmail(email.getValue());
-        user.setPassword(password.getValue());
+        user.setUserCredentials(email.getValue(), password.getValue());
 
         if (!user.isValidEmail()) {
             emailError.setValue("Invalid Email");

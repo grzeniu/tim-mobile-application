@@ -6,14 +6,17 @@ import android.util.Patterns;
 import java.io.Serializable;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class User implements Serializable {
 
     private String email;
     private String password;
+
+    public void setUserCredentials(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
 
     public boolean isValidEmail() {
         return this.email != null && !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
@@ -23,7 +26,7 @@ public class User implements Serializable {
         return this.password != null && this.password.length() >= 6;
     }
 
-    //TODO user retrofit instead of this method
+    //TODO use retrofit instead of this method
     public boolean isValidCredential() {
         return this.email.equalsIgnoreCase("bardhan.jit@gmail.com") && this.password.equals("123456");
     }
