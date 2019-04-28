@@ -12,18 +12,18 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:orientation="vertical"
         android:padding="20dp"
-        android:gravity="center"
+        android:gravity="top"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".view.LoginActivity">
 
         <EditText
-            android:id="@+id/editEmail"
+            android:id="@+id/editUsername"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
-            android:text="@={userViewModel.email}"
-            android:inputType="textEmailAddress" />
+            android:hint="Username"
+            android:text="@={userViewModel.username}"
+            android:inputType="text" />
 
         <EditText
             android:id="@+id/editPassword"
@@ -40,7 +40,15 @@
             android:onClick="@{()-> userViewModel.onLoginClick()}"
             android:text="Login" />
 
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:onClick="@{()-> userViewModel.onRegisterClick()}"
+            android:text="Register" />
+
         <ProgressBar
+            android:id="@+id/loginProgressBar"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_gravity="center"

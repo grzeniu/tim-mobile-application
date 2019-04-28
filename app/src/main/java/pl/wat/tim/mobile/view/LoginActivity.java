@@ -2,6 +2,8 @@ package pl.wat.tim.mobile.view;
 
 import android.os.Bundle;
 
+import com.facebook.stetho.Stetho;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
@@ -18,6 +20,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Stetho.initializeWithDefaults(this);
 
         final ActivityLoginBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
 
@@ -25,11 +28,22 @@ public class LoginActivity extends AppCompatActivity {
 
         binding.setUserViewModel(userViewModel);
 
-        //TODO refactor - move to another method
-        userViewModel.getEmailError().observe(this, new Observer<String>() {
+        userViewModel.getBusy().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer obj) {
+                binding.loginProgressBar.setVisibility(obj);
+            }
+        });
+
+        setErrorHandling(userViewModel, binding);
+    }
+
+    private void setErrorHandling(UserViewModel userViewModel, final ActivityLoginBinding binding){
+        userViewModel.getUsernameError().observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String err) {
-                binding.editEmail.setError(err);
+                binding.editUsername.setError(err);
+                binding.editUsername.requestFocus();
             }
         });
 
@@ -37,6 +51,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onChanged(@Nullable String err) {
                 binding.editPassword.setError(err);
+                binding.editPassword.requestFocus();
             }
         });
     }
