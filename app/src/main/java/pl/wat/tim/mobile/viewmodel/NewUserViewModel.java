@@ -58,9 +58,14 @@ public class NewUserViewModel extends ViewModel {
             call.enqueue(new Callback<UserDto>() {
                 @Override
                 public void onResponse(Call<UserDto> call, Response<UserDto> response) {
-                    Toasty.success(context, "New account created successfully!", Toast.LENGTH_SHORT, true).show();
-                    busy.setValue(View.GONE);
-                    backToPreviousActivity();
+                    if (response.code() == 201) {
+                        Toasty.success(context, "New account created successfully!", Toast.LENGTH_SHORT, true).show();
+                        busy.setValue(View.GONE);
+                        backToPreviousActivity();
+                    } else {
+                        Toasty.error(context, "Something went wrong!", Toast.LENGTH_SHORT, true).show();
+                        busy.setValue(View.GONE);
+                    }
                 }
 
                 @Override

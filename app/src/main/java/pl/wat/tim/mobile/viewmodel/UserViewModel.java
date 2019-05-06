@@ -1,5 +1,6 @@
 package pl.wat.tim.mobile.viewmodel;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
@@ -15,6 +16,7 @@ import pl.wat.tim.mobile.integration.BackendAppClient;
 import pl.wat.tim.mobile.integration.dto.AuthToken;
 import pl.wat.tim.mobile.integration.dto.LoginUserDto;
 import pl.wat.tim.mobile.user.User;
+import pl.wat.tim.mobile.view.MainActivity;
 import pl.wat.tim.mobile.view.RegistrationActivity;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -59,20 +61,18 @@ public class UserViewModel extends ViewModel {
             call.enqueue(new Callback<AuthToken>() {
                 @Override
                 public void onResponse(Call<AuthToken> call, Response<AuthToken> response) {
-                    if(response.code() == 201){
+                    if (response.code() == 201) {
                         user.setToken(response.body().getToken());
                         user.setUsername(response.body().getUsername());
                         Toasty.success(context, "Logged in successfully", Toast.LENGTH_SHORT, true).show();
-                    }
-                    else
-                        Toasty.error(context, "Incorrect credentials, try again", Toast.LENGTH_SHORT, true).show();
 
-                    getBusy().setValue(View.GONE);
-                    //                    Intent intent = new Intent(context, ProfileActivity.class);
+                        getBusy().setValue(View.GONE);
+                        Intent intent = new Intent(context, MainActivity.class);
 //                    intent.putExtra("USER_OBJ", user);
-//                    context.startActivity(intent);
-
-//                    ((Activity) context).finish();
+                        context.startActivity(intent);
+                        ((Activity) context).finish();
+                    } else
+                        Toasty.error(context, "Incorrect credentials, try again", Toast.LENGTH_SHORT, true).show();
                 }
 
                 @Override
@@ -90,7 +90,7 @@ public class UserViewModel extends ViewModel {
         context.startActivity(new Intent(context, RegistrationActivity.class));
     }
 
-    private LoginUserDto createLoginUserDto(){
+    private LoginUserDto createLoginUserDto() {
         return LoginUserDto.builder()
                 .username(username.getValue())
                 .password(password.getValue())
