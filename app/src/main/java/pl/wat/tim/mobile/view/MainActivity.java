@@ -1,20 +1,23 @@
 package pl.wat.tim.mobile.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
+import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ViewModelProviders;
 import pl.wat.tim.mobile.R;
+import pl.wat.tim.mobile.user.User;
+import pl.wat.tim.mobile.viewmodel.FinancesViewModel;
+import pl.wat.tim.mobile.viewmodel.factory.FinancesViewModelFactory;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -23,17 +26,24 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        final MainActivityBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+
+        FinancesViewModel viewModel = ViewModelProviders.of(this, new FinancesViewModelFactory(this, new User())).get(FinancesViewModel.class);
+
+//        binding.setFinancesViewModel(viewModel);
+
+//        FloatingActionButton fab = findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -82,18 +92,12 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_finances) {
+        } else if (id == R.id.nav_report) {
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.nav_logout) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

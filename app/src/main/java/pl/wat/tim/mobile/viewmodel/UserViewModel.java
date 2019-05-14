@@ -68,11 +68,13 @@ public class UserViewModel extends ViewModel {
 
                         getBusy().setValue(View.GONE);
                         Intent intent = new Intent(context, MainActivity.class);
-//                    intent.putExtra("USER_OBJ", user);
+                        intent.putExtra("USER_OBJ", user);
                         context.startActivity(intent);
                         ((Activity) context).finish();
-                    } else
+                    } else {
                         Toasty.error(context, "Incorrect credentials, try again", Toast.LENGTH_SHORT, true).show();
+                        getBusy().setValue(View.GONE);
+                    }
                 }
 
                 @Override
