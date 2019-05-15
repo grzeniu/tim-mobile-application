@@ -15,6 +15,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProviders;
 import pl.wat.tim.mobile.R;
+import pl.wat.tim.mobile.databinding.ActivityMainBinding;
 import pl.wat.tim.mobile.user.User;
 import pl.wat.tim.mobile.viewmodel.FinancesViewModel;
 import pl.wat.tim.mobile.viewmodel.factory.FinancesViewModelFactory;
@@ -27,23 +28,12 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        final ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        FinancesViewModel viewModel = ViewModelProviders.of(this, new FinancesViewModelFactory(this, new User())).get(FinancesViewModel.class);
+        binding.setFinancesViewModel(viewModel);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-//        final MainActivityBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-
-        FinancesViewModel viewModel = ViewModelProviders.of(this, new FinancesViewModelFactory(this, new User())).get(FinancesViewModel.class);
-
-//        binding.setFinancesViewModel(viewModel);
-
-//        FloatingActionButton fab = findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -67,19 +57,14 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -87,7 +72,6 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
