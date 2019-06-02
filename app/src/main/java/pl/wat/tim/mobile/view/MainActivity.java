@@ -16,6 +16,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProviders;
 import pl.wat.tim.mobile.R;
 import pl.wat.tim.mobile.databinding.ActivityMainBinding;
+import pl.wat.tim.mobile.databinding.NavHeaderMainBinding;
 import pl.wat.tim.mobile.user.User;
 import pl.wat.tim.mobile.viewmodel.FinancesViewModel;
 import pl.wat.tim.mobile.viewmodel.factory.FinancesViewModelFactory;
@@ -28,8 +29,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        User user = (User) this.getIntent().getExtras().getSerializable("USER_OBJ");
         final ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        FinancesViewModel viewModel = ViewModelProviders.of(this, new FinancesViewModelFactory(this, new User())).get(FinancesViewModel.class);
+        FinancesViewModel viewModel = ViewModelProviders.of(this, new FinancesViewModelFactory(this, user)).get(FinancesViewModel.class);
         binding.setFinancesViewModel(viewModel);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -43,6 +45,21 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        setUsernameInHeader(binding, user.getUsername());
+
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new FinanceFragment()).commit();
+            navigationView.setCheckedItem(R.id.nav_finances);
+        }
+    }
+
+    private void setUsernameInHeader(ActivityMainBinding binding, String username) {
+
+        NavHeaderMainBinding bind = DataBindingUtil.inflate(getLayoutInflater(), R.layout.nav_header_main, binding
+                .navView, false);
+        binding.navView.addHeaderView(bind.getRoot());
+        bind.setUsername(username);
     }
 
     @Override
@@ -77,8 +94,9 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_finances) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new FinanceFragment()).commit();
         } else if (id == R.id.nav_report) {
-
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ReportFragment()).commit();
         } else if (id == R.id.nav_logout) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();

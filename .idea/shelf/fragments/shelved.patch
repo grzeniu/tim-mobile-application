@@ -1,0 +1,293 @@
+Index: app/src/main/java/pl/wat/tim/mobile/view/ReportFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/pl/wat/tim/mobile/view/ReportFragment.java	(date 1559406645995)
++++ app/src/main/java/pl/wat/tim/mobile/view/ReportFragment.java	(date 1559406645995)
+@@ -0,0 +1,20 @@
++package pl.wat.tim.mobile.view;
++
++import android.os.Bundle;
++import android.view.LayoutInflater;
++import android.view.View;
++import android.view.ViewGroup;
++
++import androidx.annotation.NonNull;
++import androidx.annotation.Nullable;
++import androidx.fragment.app.Fragment;
++import pl.wat.tim.mobile.R;
++
++public class ReportFragment extends Fragment {
++
++    @Nullable
++    @Override
++    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
++        return inflater.inflate(R.layout.fragment_report, container, false);
++    }
++}
+Index: app/src/main/res/layout/fragment_report.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/fragment_report.xml	(date 1559406604077)
++++ app/src/main/res/layout/fragment_report.xml	(date 1559406604077)
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="utf-8"?>
++<layout xmlns:app="http://schemas.android.com/apk/res-auto"
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    tools:context=".view.MainActivity">
++
++    <androidx.coordinatorlayout.widget.CoordinatorLayout
++        android:layout_width="match_parent"
++        android:layout_height="match_parent">
++
++        <com.google.android.material.appbar.AppBarLayout
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:theme="@style/AppTheme.AppBarOverlay">
++
++            <androidx.appcompat.widget.Toolbar
++                android:id="@+id/toolbar1"
++                android:layout_width="match_parent"
++                android:layout_height="?attr/actionBarSize"
++                android:background="?attr/colorPrimary"
++                app:popupTheme="@style/AppTheme.PopupOverlay" />
++
++        </com.google.android.material.appbar.AppBarLayout>
++
++        <include layout="@layout/content_main" />
++    </androidx.coordinatorlayout.widget.CoordinatorLayout>
++
++</layout>
+\ No newline at end of file
+Index: app/src/main/java/pl/wat/tim/mobile/viewmodel/UserViewModel.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package pl.wat.tim.mobile.viewmodel;\r\n\r\nimport android.app.Activity;\r\nimport android.content.Context;\r\nimport android.content.Intent;\r\nimport android.view.View;\r\nimport android.widget.Toast;\r\n\r\nimport androidx.lifecycle.MediatorLiveData;\r\nimport androidx.lifecycle.MutableLiveData;\r\nimport androidx.lifecycle.ViewModel;\r\nimport es.dmoral.toasty.Toasty;\r\nimport lombok.Getter;\r\nimport pl.wat.tim.mobile.RetrofitClientInstance;\r\nimport pl.wat.tim.mobile.integration.BackendAppClient;\r\nimport pl.wat.tim.mobile.integration.dto.AuthToken;\r\nimport pl.wat.tim.mobile.integration.dto.LoginUserDto;\r\nimport pl.wat.tim.mobile.user.User;\r\nimport pl.wat.tim.mobile.view.MainActivity;\r\nimport pl.wat.tim.mobile.view.RegistrationActivity;\r\nimport retrofit2.Call;\r\nimport retrofit2.Callback;\r\nimport retrofit2.Response;\r\n\r\npublic class UserViewModel extends ViewModel {\r\n\r\n    public MediatorLiveData<String> username = new MediatorLiveData<>();\r\n    public MediatorLiveData<String> password = new MediatorLiveData<>();\r\n\r\n    @Getter\r\n    private MediatorLiveData<String> usernameError = new MediatorLiveData<>();\r\n    @Getter\r\n    private MediatorLiveData<String> passwordError = new MediatorLiveData<>();\r\n\r\n    private MediatorLiveData<Integer> busy;\r\n\r\n    private User user;\r\n    private Context context;\r\n    private BackendAppClient client;\r\n\r\n    public UserViewModel(Context context, User user) {\r\n        this.user = user;\r\n        this.context = context;\r\n        this.client = RetrofitClientInstance.getRetrofitInstance().create(BackendAppClient.class);\r\n    }\r\n\r\n    public MutableLiveData<Integer> getBusy() {\r\n        if (busy == null) {\r\n            busy = new MediatorLiveData<>();\r\n            busy.setValue(View.GONE);\r\n        }\r\n        return busy;\r\n    }\r\n\r\n    public void onLoginClick() {\r\n        if (isValidCredentials()) {\r\n            LoginUserDto userDto = createLoginUserDto();\r\n            Call<AuthToken> call = client.generateToken(userDto);\r\n            getBusy().setValue(View.VISIBLE);\r\n\r\n            call.enqueue(new Callback<AuthToken>() {\r\n                @Override\r\n                public void onResponse(Call<AuthToken> call, Response<AuthToken> response) {\r\n                    if (response.code() == 201) {\r\n                        user.setToken(response.body().getToken());\r\n                        user.setUsername(response.body().getUsername());\r\n                        Toasty.success(context, \"Logged in successfully\", Toast.LENGTH_SHORT, true).show();\r\n\r\n                        getBusy().setValue(View.GONE);\r\n                        Intent intent = new Intent(context, MainActivity.class);\r\n                        intent.putExtra(\"USER_OBJ\", user);\r\n                        context.startActivity(intent);\r\n                        ((Activity) context).finish();\r\n                    } else {\r\n                        Toasty.error(context, \"Incorrect credentials, try again\", Toast.LENGTH_SHORT, true).show();\r\n                        getBusy().setValue(View.GONE);\r\n                    }\r\n                }\r\n\r\n                @Override\r\n                public void onFailure(Call<AuthToken> call, Throwable t) {\r\n                    Toasty.error(context, \"Something went wrong!\", Toast.LENGTH_SHORT, true).show();\r\n                    getBusy().setValue(View.GONE);\r\n                }\r\n            });\r\n        } else {\r\n            Toasty.error(context, \"Invalid credentials\", Toast.LENGTH_SHORT, true).show();\r\n        }\r\n    }\r\n\r\n    public void onRegisterClick() {\r\n        context.startActivity(new Intent(context, RegistrationActivity.class));\r\n    }\r\n\r\n    private LoginUserDto createLoginUserDto() {\r\n        return LoginUserDto.builder()\r\n                .username(username.getValue())\r\n                .password(password.getValue())\r\n                .build();\r\n    }\r\n\r\n    private boolean isValidCredentials() {\r\n        if (username.getValue() == null) {\r\n            usernameError.setValue(\"Username cannot be empty\");\r\n            return false;\r\n        }\r\n        if (!UserFieldValidator.isValidPassword(password.getValue())) {\r\n            passwordError.setValue(\"Password should be Minimum 6 Characters\");\r\n            return false;\r\n        }\r\n        return true;\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/pl/wat/tim/mobile/viewmodel/UserViewModel.java	(date 1557955073000)
++++ app/src/main/java/pl/wat/tim/mobile/viewmodel/UserViewModel.java	(date 1559407180250)
+@@ -79,6 +79,12 @@
+ 
+                 @Override
+                 public void onFailure(Call<AuthToken> call, Throwable t) {
++                    //TODO remove
++                    Intent intent = new Intent(context, MainActivity.class);
++                    intent.putExtra("USER_OBJ", user);
++                    context.startActivity(intent);
++                    ((Activity) context).finish();
++
+                     Toasty.error(context, "Something went wrong!", Toast.LENGTH_SHORT, true).show();
+                     getBusy().setValue(View.GONE);
+                 }
+Index: app/src/main/res/layout/app_bar_main.xml
+===================================================================
+--- app/src/main/res/layout/app_bar_main.xml	(date 1557955073000)
++++ app/src/main/res/layout/fragment_finances.xml	(date 1557951970095)
+Index: app/src/main/res/layout/nav_header_main.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"@dimen/nav_header_height\"\r\n    android:background=\"@drawable/side_nav_bar\"\r\n    android:gravity=\"bottom\"\r\n    android:orientation=\"vertical\"\r\n    android:paddingLeft=\"@dimen/activity_horizontal_margin\"\r\n    android:paddingTop=\"@dimen/activity_vertical_margin\"\r\n    android:paddingRight=\"@dimen/activity_horizontal_margin\"\r\n    android:paddingBottom=\"@dimen/activity_vertical_margin\"\r\n    android:theme=\"@style/ThemeOverlay.AppCompat.Dark\">\r\n\r\n    <TextView\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:paddingTop=\"@dimen/nav_header_vertical_spacing\"\r\n        android:text=\"Witaj Panie mój !\"\r\n        android:textAppearance=\"@style/TextAppearance.AppCompat.Large\" />\r\n\r\n</LinearLayout>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/nav_header_main.xml	(date 1557955073000)
++++ app/src/main/res/layout/nav_header_main.xml	(date 1557955616144)
+@@ -1,22 +1,33 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+-    xmlns:app="http://schemas.android.com/apk/res-auto"
+-    android:layout_width="match_parent"
+-    android:layout_height="@dimen/nav_header_height"
+-    android:background="@drawable/side_nav_bar"
+-    android:gravity="bottom"
+-    android:orientation="vertical"
+-    android:paddingLeft="@dimen/activity_horizontal_margin"
+-    android:paddingTop="@dimen/activity_vertical_margin"
+-    android:paddingRight="@dimen/activity_horizontal_margin"
+-    android:paddingBottom="@dimen/activity_vertical_margin"
+-    android:theme="@style/ThemeOverlay.AppCompat.Dark">
++<layout xmlns:android="http://schemas.android.com/apk/res/android">
++
++    <data>
++
++        <variable
++            name="username"
++            type="String" />
++    </data>
++
++    <LinearLayout
++        android:layout_width="match_parent"
++        android:layout_height="@dimen/nav_header_height"
++        android:background="@drawable/side_nav_bar"
++        android:gravity="bottom"
++        android:orientation="vertical"
++        android:paddingLeft="@dimen/activity_horizontal_margin"
++        android:paddingTop="@dimen/activity_vertical_margin"
++        android:paddingRight="@dimen/activity_horizontal_margin"
++        android:paddingBottom="@dimen/activity_vertical_margin"
++        android:theme="@style/ThemeOverlay.AppCompat.Dark">
+ 
+-    <TextView
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:paddingTop="@dimen/nav_header_vertical_spacing"
+-        android:text="Witaj Panie mój !"
+-        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
++        <TextView
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:paddingTop="@dimen/nav_header_vertical_spacing"
++            android:text='@{"User: "+username}'
++            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+ 
+-</LinearLayout>
++    </LinearLayout>
++
++</layout>
++
+Index: app/src/main/res/layout/activity_main.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<layout xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\r\n    xmlns:bind=\"http://schemas.android.com/tools\">\r\n\r\n    <data>\r\n        <variable\r\n            name=\"financesViewModel\"\r\n            type=\"pl.wat.tim.mobile.viewmodel.FinancesViewModel\" />\r\n    </data>\r\n\r\n    <androidx.drawerlayout.widget.DrawerLayout\r\n        xmlns:tools=\"http://schemas.android.com/tools\"\r\n        android:id=\"@+id/drawer_layout\"\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"match_parent\"\r\n        android:fitsSystemWindows=\"true\"\r\n        tools:openDrawer=\"start\">\r\n\r\n        <include\r\n            layout=\"@layout/app_bar_main\"\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"match_parent\"\r\n            bind:financesViewModel=\"@{(pl.wat.tim.mobile.viewmodel.FinancesViewModel)financesViewModel}\"/>\r\n\r\n        <com.google.android.material.navigation.NavigationView\r\n            android:id=\"@+id/nav_view\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"match_parent\"\r\n            android:layout_gravity=\"start\"\r\n            android:fitsSystemWindows=\"true\"\r\n            app:headerLayout=\"@layout/nav_header_main\"\r\n            app:menu=\"@menu/activity_main_drawer\" />\r\n    </androidx.drawerlayout.widget.DrawerLayout>\r\n\r\n</layout>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_main.xml	(date 1557955073000)
++++ app/src/main/res/layout/activity_main.xml	(date 1559407761706)
+@@ -17,11 +17,11 @@
+         android:fitsSystemWindows="true"
+         tools:openDrawer="start">
+ 
+-        <include
+-            layout="@layout/app_bar_main"
++        <FrameLayout
++            android:id="@+id/fragment_container"
+             android:layout_width="match_parent"
+-            android:layout_height="match_parent"
+-            bind:financesViewModel="@{(pl.wat.tim.mobile.viewmodel.FinancesViewModel)financesViewModel}"/>
++            android:layout_height="match_parent">
++        </FrameLayout>
+ 
+         <com.google.android.material.navigation.NavigationView
+             android:id="@+id/nav_view"
+Index: app/src/main/res/layout/content_main.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<androidx.constraintlayout.widget.ConstraintLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    app:layout_behavior=\"@string/appbar_scrolling_view_behavior\"\r\n    tools:context=\".view.MainActivity\"\r\n    tools:showIn=\"@layout/app_bar_main\">\r\n\r\n    <TextView\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:text=\"Hello World!\"\r\n        app:layout_constraintBottom_toBottomOf=\"parent\"\r\n        app:layout_constraintLeft_toLeftOf=\"parent\"\r\n        app:layout_constraintRight_toRightOf=\"parent\"\r\n        app:layout_constraintTop_toTopOf=\"parent\" />\r\n\r\n</androidx.constraintlayout.widget.ConstraintLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/content_main.xml	(date 1557955073000)
++++ app/src/main/res/layout/content_main.xml	(date 1559407904710)
+@@ -6,7 +6,7 @@
+     android:layout_height="match_parent"
+     app:layout_behavior="@string/appbar_scrolling_view_behavior"
+     tools:context=".view.MainActivity"
+-    tools:showIn="@layout/app_bar_main">
++    tools:showIn="@layout/fragment_finances">
+ 
+     <TextView
+         android:layout_width="wrap_content"
+Index: app/src/main/java/pl/wat/tim/mobile/view/FinanceFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/pl/wat/tim/mobile/view/FinanceFragment.java	(date 1559407904778)
++++ app/src/main/java/pl/wat/tim/mobile/view/FinanceFragment.java	(date 1559407904778)
+@@ -0,0 +1,20 @@
++package pl.wat.tim.mobile.view;
++
++import android.os.Bundle;
++import android.view.LayoutInflater;
++import android.view.View;
++import android.view.ViewGroup;
++
++import androidx.annotation.NonNull;
++import androidx.annotation.Nullable;
++import androidx.fragment.app.Fragment;
++import pl.wat.tim.mobile.R;
++
++public class FinanceFragment extends Fragment {
++
++    @Nullable
++    @Override
++    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
++        return inflater.inflate(R.layout.fragment_finances, container, false);
++    }
++}
+Index: app/src/main/res/values/dimens.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><resources>\r\n    <!-- Default screen margins, per the Android Design guidelines. -->\r\n    <dimen name=\"activity_horizontal_margin\">16dp</dimen>\r\n    <dimen name=\"activity_vertical_margin\">16dp</dimen>\r\n    <dimen name=\"nav_header_vertical_spacing\">8dp</dimen>\r\n    <dimen name=\"nav_header_height\">126dp</dimen>\r\n    <dimen name=\"fab_margin\">16dp</dimen>\r\n</resources>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/dimens.xml	(date 1557955073000)
++++ app/src/main/res/values/dimens.xml	(date 1557955416637)
+@@ -3,6 +3,6 @@
+     <dimen name="activity_horizontal_margin">16dp</dimen>
+     <dimen name="activity_vertical_margin">16dp</dimen>
+     <dimen name="nav_header_vertical_spacing">8dp</dimen>
+-    <dimen name="nav_header_height">126dp</dimen>
++    <dimen name="nav_header_height">64dp</dimen>
+     <dimen name="fab_margin">16dp</dimen>
+ </resources>
+Index: app/src/main/java/pl/wat/tim/mobile/view/MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package pl.wat.tim.mobile.view;\r\n\r\nimport android.content.Intent;\r\nimport android.os.Bundle;\r\nimport android.view.Menu;\r\nimport android.view.MenuItem;\r\n\r\nimport com.google.android.material.navigation.NavigationView;\r\n\r\nimport androidx.appcompat.app.ActionBarDrawerToggle;\r\nimport androidx.appcompat.app.AppCompatActivity;\r\nimport androidx.appcompat.widget.Toolbar;\r\nimport androidx.core.view.GravityCompat;\r\nimport androidx.databinding.DataBindingUtil;\r\nimport androidx.drawerlayout.widget.DrawerLayout;\r\nimport androidx.lifecycle.ViewModelProviders;\r\nimport pl.wat.tim.mobile.R;\r\nimport pl.wat.tim.mobile.databinding.ActivityMainBinding;\r\nimport pl.wat.tim.mobile.user.User;\r\nimport pl.wat.tim.mobile.viewmodel.FinancesViewModel;\r\nimport pl.wat.tim.mobile.viewmodel.factory.FinancesViewModelFactory;\r\n\r\npublic class MainActivity extends AppCompatActivity\r\n        implements NavigationView.OnNavigationItemSelectedListener {\r\n\r\n    @Override\r\n    protected void onCreate(Bundle savedInstanceState) {\r\n        super.onCreate(savedInstanceState);\r\n        setContentView(R.layout.activity_main);\r\n\r\n        final ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);\r\n        FinancesViewModel viewModel = ViewModelProviders.of(this, new FinancesViewModelFactory(this, new User())).get(FinancesViewModel.class);\r\n        binding.setFinancesViewModel(viewModel);\r\n\r\n        Toolbar toolbar = findViewById(R.id.toolbar);\r\n        setSupportActionBar(toolbar);\r\n\r\n        DrawerLayout drawer = findViewById(R.id.drawer_layout);\r\n        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(\r\n                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);\r\n        drawer.addDrawerListener(toggle);\r\n        toggle.syncState();\r\n\r\n        NavigationView navigationView = findViewById(R.id.nav_view);\r\n        navigationView.setNavigationItemSelectedListener(this);\r\n    }\r\n\r\n    @Override\r\n    public void onBackPressed() {\r\n        DrawerLayout drawer = findViewById(R.id.drawer_layout);\r\n        if (drawer.isDrawerOpen(GravityCompat.START)) {\r\n            drawer.closeDrawer(GravityCompat.START);\r\n        } else {\r\n            super.onBackPressed();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public boolean onCreateOptionsMenu(Menu menu) {\r\n        getMenuInflater().inflate(R.menu.main, menu);\r\n        return true;\r\n    }\r\n\r\n    @Override\r\n    public boolean onOptionsItemSelected(MenuItem item) {\r\n        int id = item.getItemId();\r\n\r\n        if (id == R.id.action_settings) {\r\n            return true;\r\n        }\r\n\r\n        return super.onOptionsItemSelected(item);\r\n    }\r\n\r\n    @Override\r\n    public boolean onNavigationItemSelected(MenuItem item) {\r\n        int id = item.getItemId();\r\n\r\n        if (id == R.id.nav_finances) {\r\n        } else if (id == R.id.nav_report) {\r\n\r\n        } else if (id == R.id.nav_logout) {\r\n            startActivity(new Intent(this, LoginActivity.class));\r\n            finish();\r\n        }\r\n\r\n        DrawerLayout drawer = findViewById(R.id.drawer_layout);\r\n        drawer.closeDrawer(GravityCompat.START);\r\n        return true;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/pl/wat/tim/mobile/view/MainActivity.java	(date 1557955073000)
++++ app/src/main/java/pl/wat/tim/mobile/view/MainActivity.java	(date 1559408022537)
+@@ -16,6 +16,7 @@
+ import androidx.lifecycle.ViewModelProviders;
+ import pl.wat.tim.mobile.R;
+ import pl.wat.tim.mobile.databinding.ActivityMainBinding;
++import pl.wat.tim.mobile.databinding.NavHeaderMainBinding;
+ import pl.wat.tim.mobile.user.User;
+ import pl.wat.tim.mobile.viewmodel.FinancesViewModel;
+ import pl.wat.tim.mobile.viewmodel.factory.FinancesViewModelFactory;
+@@ -43,6 +44,23 @@
+ 
+         NavigationView navigationView = findViewById(R.id.nav_view);
+         navigationView.setNavigationItemSelectedListener(this);
++
++        User user = (User) this.getIntent().getExtras().getSerializable("USER_OBJ");
++
++        setUsernameInHeader(binding, user.getUsername());
++
++        if (savedInstanceState == null) {
++            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new FinanceFragment()).commit();
++            navigationView.setCheckedItem(R.id.nav_finances);
++        }
++    }
++
++    private void setUsernameInHeader(ActivityMainBinding binding, String username) {
++
++        NavHeaderMainBinding bind = DataBindingUtil.inflate(getLayoutInflater(), R.layout.nav_header_main, binding
++                .navView, false);
++        binding.navView.addHeaderView(bind.getRoot());
++        bind.setUsername(username);
+     }
+ 
+     @Override
+@@ -77,8 +95,9 @@
+         int id = item.getItemId();
+ 
+         if (id == R.id.nav_finances) {
++            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new FinanceFragment()).commit();
+         } else if (id == R.id.nav_report) {
+-
++            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ReportFragment()).commit();
+         } else if (id == R.id.nav_logout) {
+             startActivity(new Intent(this, LoginActivity.class));
+             finish();
