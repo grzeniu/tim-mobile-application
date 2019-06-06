@@ -11,7 +11,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import pl.wat.tim.mobile.R;
 import pl.wat.tim.mobile.databinding.ActivityLoginBinding;
-import pl.wat.tim.mobile.user.User;
+import pl.wat.tim.mobile.model.User;
 import pl.wat.tim.mobile.viewmodel.UserViewModel;
 import pl.wat.tim.mobile.viewmodel.factory.UserViewModelFactory;
 

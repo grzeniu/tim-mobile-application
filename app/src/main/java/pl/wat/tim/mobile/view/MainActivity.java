@@ -17,7 +17,7 @@ import androidx.lifecycle.ViewModelProviders;
 import pl.wat.tim.mobile.R;
 import pl.wat.tim.mobile.databinding.ActivityMainBinding;
 import pl.wat.tim.mobile.databinding.NavHeaderMainBinding;
-import pl.wat.tim.mobile.user.User;
+import pl.wat.tim.mobile.model.User;
 import pl.wat.tim.mobile.viewmodel.FinancesViewModel;
 import pl.wat.tim.mobile.viewmodel.factory.FinancesViewModelFactory;
 

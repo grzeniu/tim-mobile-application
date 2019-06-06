@@ -15,7 +15,7 @@ import pl.wat.tim.mobile.RetrofitClientInstance;
 import pl.wat.tim.mobile.integration.BackendAppClient;
 import pl.wat.tim.mobile.integration.dto.AuthToken;
 import pl.wat.tim.mobile.integration.dto.LoginUserDto;
-import pl.wat.tim.mobile.user.User;
+import pl.wat.tim.mobile.model.User;
 import pl.wat.tim.mobile.view.MainActivity;
 import pl.wat.tim.mobile.view.RegistrationActivity;
 import retrofit2.Call;

@@ -1,4 +1,4 @@
-package pl.wat.tim.mobile.user;
+package pl.wat.tim.mobile.model;
 
 import java.io.Serializable;
 

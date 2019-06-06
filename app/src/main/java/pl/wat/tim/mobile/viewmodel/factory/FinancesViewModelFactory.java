@@ -4,7 +4,7 @@ import android.content.Context;
 
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-import pl.wat.tim.mobile.user.User;
+import pl.wat.tim.mobile.model.User;
 import pl.wat.tim.mobile.viewmodel.FinancesViewModel;
 
 public class FinancesViewModelFactory extends ViewModelProvider.NewInstanceFactory {

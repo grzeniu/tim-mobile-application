@@ -10,13 +10,34 @@
             type="pl.wat.tim.mobile.viewmodel.FinancesViewModel" />
     </data>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:onClick="@{(v)-> financesViewModel.onAddFinanceClick(v)}"
-        app:srcCompat="@android:drawable/ic_input_add" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/financesRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_above="@id/financesRecyclerView"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="@dimen/fab_margin"
+            android:onClick="@{(v)-> financesViewModel.onAddFinanceClick(v)}"
+            app:srcCompat="@android:drawable/ic_input_add" />
+
+        <ProgressBar
+            android:id="@+id/financesProgressBar"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerHorizontal="true"
+            android:visibility="@{financesViewModel.busy}"/>
+    </RelativeLayout>
 
 </layout>
