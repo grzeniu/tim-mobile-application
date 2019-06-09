@@ -29,10 +29,7 @@ public interface BackendAppClient {
     Call<ResponseBody> generateReport(@Header("Authorization") String token);
 
     @Headers("Content-Type: application/json")
-    @GET("/finances/incomes")
-    Call<List<FinanceResponseDto>> getIncomes(@Header("Authorization") String token);
+    @GET("/finances")
+    Call<List<FinanceResponseDto>> getFinances(@Header("Authorization") String token);
 
-    @Headers("Content-Type: application/json")
-    @GET("/finances/expenses")
-    Call<List<FinanceResponseDto>> getExpenses(@Header("Authorization") String token);
 }

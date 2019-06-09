@@ -10,13 +10,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import es.dmoral.toasty.Toasty;
 import lombok.Getter;
-import pl.wat.tim.mobile.RetrofitClientInstance;
-import pl.wat.tim.mobile.integration.BackendAppClient;
+import pl.wat.tim.mobile.integration.BackendAppRepository;
 import pl.wat.tim.mobile.integration.dto.NewUserDto;
-import pl.wat.tim.mobile.integration.dto.UserDto;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class NewUserViewModel extends ViewModel {
 
@@ -32,15 +27,17 @@ public class NewUserViewModel extends ViewModel {
     private MediatorLiveData<String> passwordError = new MediatorLiveData<>();
     @Getter
     private MediatorLiveData<String> usernameError = new MediatorLiveData<>();
+    @Getter
+    private MediatorLiveData<Boolean> userCreated = new MediatorLiveData<>();
 
     private MediatorLiveData<Integer> busy;
 
     private Context context;
-    private BackendAppClient client;
+    private BackendAppRepository repository;
 
     public NewUserViewModel(Context context) {
         this.context = context;
-        this.client = RetrofitClientInstance.getRetrofitInstance().create(BackendAppClient.class);
+        this.repository = new BackendAppRepository();
     }
 
     public MutableLiveData<Integer> getBusy() {
@@ -53,27 +50,8 @@ public class NewUserViewModel extends ViewModel {
 
     public void onRegistrationClick() {
         if (isValidNewUser()) {
-            Call<UserDto> call = client.createNewUser(createNewUserDto());
             getBusy().setValue(View.VISIBLE);
-            call.enqueue(new Callback<UserDto>() {
-                @Override
-                public void onResponse(Call<UserDto> call, Response<UserDto> response) {
-                    if (response.code() == 201) {
-                        Toasty.success(context, "New account created successfully!", Toast.LENGTH_SHORT, true).show();
-                        busy.setValue(View.GONE);
-                        backToPreviousActivity();
-                    } else {
-                        Toasty.error(context, "Something went wrong!", Toast.LENGTH_SHORT, true).show();
-                        busy.setValue(View.GONE);
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<UserDto> call, Throwable t) {
-                    Toasty.error(context, "Something went wrong!", Toast.LENGTH_SHORT, true).show();
-                    busy.setValue(View.GONE);
-                }
-            });
+            repository.createNewUser(userCreated, createNewUserDto());
         } else {
             Toasty.error(context, "Invalid data", Toast.LENGTH_SHORT, true).show();
         }
@@ -87,10 +65,6 @@ public class NewUserViewModel extends ViewModel {
                 .lastname(lastname.getValue())
                 .email(email.getValue())
                 .build();
-    }
-
-    private void backToPreviousActivity() {
-        ((Activity) context).onBackPressed();
     }
 
     private boolean isValidNewUser() {

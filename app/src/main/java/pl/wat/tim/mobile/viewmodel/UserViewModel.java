@@ -1,6 +1,5 @@
 package pl.wat.tim.mobile.viewmodel;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
@@ -11,16 +10,10 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import es.dmoral.toasty.Toasty;
 import lombok.Getter;
-import pl.wat.tim.mobile.RetrofitClientInstance;
-import pl.wat.tim.mobile.integration.BackendAppClient;
-import pl.wat.tim.mobile.integration.dto.AuthToken;
+import pl.wat.tim.mobile.integration.BackendAppRepository;
 import pl.wat.tim.mobile.integration.dto.LoginUserDto;
 import pl.wat.tim.mobile.model.User;
-import pl.wat.tim.mobile.view.MainActivity;
 import pl.wat.tim.mobile.view.RegistrationActivity;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class UserViewModel extends ViewModel {
 
@@ -34,14 +27,16 @@ public class UserViewModel extends ViewModel {
 
     private MediatorLiveData<Integer> busy;
 
-    private User user;
-    private Context context;
-    private BackendAppClient client;
+    @Getter
+    private MediatorLiveData<User> user;
 
-    public UserViewModel(Context context, User user) {
-        this.user = user;
+    private Context context;
+    private BackendAppRepository repository;
+
+    public UserViewModel(Context context) {
+        this.user = new MediatorLiveData<>();
         this.context = context;
-        this.client = RetrofitClientInstance.getRetrofitInstance().create(BackendAppClient.class);
+        this.repository = new BackendAppRepository();
     }
 
     public MutableLiveData<Integer> getBusy() {
@@ -54,35 +49,8 @@ public class UserViewModel extends ViewModel {
 
     public void onLoginClick() {
         if (isValidCredentials()) {
-            LoginUserDto userDto = createLoginUserDto();
-            Call<AuthToken> call = client.generateToken(userDto);
             getBusy().setValue(View.VISIBLE);
-
-            call.enqueue(new Callback<AuthToken>() {
-                @Override
-                public void onResponse(Call<AuthToken> call, Response<AuthToken> response) {
-                    if (response.code() == 201) {
-                        user.setToken(response.body().getToken());
-                        user.setUsername(response.body().getUsername());
-                        Toasty.success(context, "Logged in successfully", Toast.LENGTH_SHORT, true).show();
-
-                        getBusy().setValue(View.GONE);
-                        Intent intent = new Intent(context, MainActivity.class);
-                        intent.putExtra("USER_OBJ", user);
-                        context.startActivity(intent);
-                        ((Activity) context).finish();
-                    } else {
-                        Toasty.error(context, "Incorrect credentials, try again", Toast.LENGTH_SHORT, true).show();
-                        getBusy().setValue(View.GONE);
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<AuthToken> call, Throwable t) {
-                    Toasty.error(context, "Something went wrong!", Toast.LENGTH_SHORT, true).show();
-                    getBusy().setValue(View.GONE);
-                }
-            });
+            user = repository.generateToken(user, createLoginUserDto());
         } else {
             Toasty.error(context, "Invalid credentials", Toast.LENGTH_SHORT, true).show();
         }
