@@ -1,5 +1,6 @@
 package pl.wat.tim.mobile.view;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -12,19 +13,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import pl.wat.tim.mobile.R;
 import pl.wat.tim.mobile.databinding.RowItemBinding;
 import pl.wat.tim.mobile.model.Finance;
+import pl.wat.tim.mobile.viewmodel.FinancesViewModel;
 
 public class FinanceAdapter extends RecyclerView.Adapter<FinanceAdapter.CustomView> {
 
     private List<Finance> finances;
-
     private LayoutInflater layoutInflater;
+    private FinancesViewModel viewModel;
 
-    FinanceAdapter(List<Finance> finances) {
-        if(finances != null){
+    public FinanceAdapter(List<Finance> finances, FinancesViewModel viewModel) {
+        if (finances != null) {
             this.finances = finances;
         } else {
             this.finances = new ArrayList<>();
         }
+
+        this.viewModel = viewModel;
     }
 
     @NonNull
@@ -44,6 +48,11 @@ public class FinanceAdapter extends RecyclerView.Adapter<FinanceAdapter.CustomVi
     public void onBindViewHolder(@NonNull CustomView holder, int position) {
         Finance finance = finances.get(position);
         holder.binding.setFinance(finance);
+
+        holder.binding.deleteButton.setOnClickListener(v -> {
+            Finance financeToRemove = finances.get(position);
+            viewModel.deleteFinance(financeToRemove.getId());
+        });
     }
 
     @Override

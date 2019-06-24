@@ -1,4 +1,4 @@
-package pl.wat.tim.mobile.integration.dto;
+package pl.wat.tim.mobile.infrastructure.integration.dto;
 
 import lombok.Builder;
 import lombok.Data;

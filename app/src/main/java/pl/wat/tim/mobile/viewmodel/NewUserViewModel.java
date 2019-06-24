@@ -1,6 +1,5 @@
 package pl.wat.tim.mobile.viewmodel;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.widget.Toast;
@@ -10,8 +9,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import es.dmoral.toasty.Toasty;
 import lombok.Getter;
-import pl.wat.tim.mobile.integration.BackendAppRepository;
-import pl.wat.tim.mobile.integration.dto.NewUserDto;
+import pl.wat.tim.mobile.infrastructure.integration.BackendAppRepository;
+import pl.wat.tim.mobile.infrastructure.integration.dto.NewUserDto;
 
 public class NewUserViewModel extends ViewModel {
 

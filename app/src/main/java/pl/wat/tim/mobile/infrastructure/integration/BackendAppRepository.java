@@ -1,6 +1,7 @@
-package pl.wat.tim.mobile.integration;
+package pl.wat.tim.mobile.infrastructure.integration;
 
 import android.os.StrictMode;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,11 +12,11 @@ import java.util.stream.Collectors;
 import androidx.lifecycle.MediatorLiveData;
 import okhttp3.ResponseBody;
 import pl.wat.tim.mobile.RetrofitClientInstance;
-import pl.wat.tim.mobile.integration.dto.AuthToken;
-import pl.wat.tim.mobile.integration.dto.FinanceResponseDto;
-import pl.wat.tim.mobile.integration.dto.LoginUserDto;
-import pl.wat.tim.mobile.integration.dto.NewUserDto;
-import pl.wat.tim.mobile.integration.dto.UserDto;
+import pl.wat.tim.mobile.infrastructure.integration.dto.AuthToken;
+import pl.wat.tim.mobile.infrastructure.integration.dto.FinanceResponseDto;
+import pl.wat.tim.mobile.infrastructure.integration.dto.LoginUserDto;
+import pl.wat.tim.mobile.infrastructure.integration.dto.NewUserDto;
+import pl.wat.tim.mobile.infrastructure.integration.dto.UserDto;
 import pl.wat.tim.mobile.model.Finance;
 import pl.wat.tim.mobile.model.User;
 import pl.wat.tim.mobile.util.FileUtil;
@@ -33,26 +34,7 @@ public class BackendAppRepository {
         client = RetrofitClientInstance.getRetrofitInstance().create(BackendAppClient.class);
     }
 
-    public File generateReport(String token) {
-        Response<ResponseBody> response = null;
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-        try {
-            response = client.generateReport(TOKEN_PREFIX + token).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (response != null && response.body() != null) {
-            String filename = response.headers().get("Content-Disposition").replaceFirst("(?i)^.*filename=\"?([^\"]+)\"?.*$", "$1");
-            return FileUtil.saveToDisk(response.body(), filename);
-        }
-        return null;
-    }
-
-    public MediatorLiveData<List<Finance>> getFinances(String token) {
-        final MediatorLiveData<List<Finance>> data = new MediatorLiveData<>();
-
+    public MediatorLiveData<List<Finance>> getFinances(String token, MediatorLiveData<List<Finance>> data) {
         client.getFinances(TOKEN_PREFIX + token).enqueue(new Callback<List<FinanceResponseDto>>() {
 
             @Override
@@ -69,6 +51,23 @@ public class BackendAppRepository {
             }
         });
         return data;
+    }
+
+    public File generateReport(String token) {
+        Response<ResponseBody> response = null;
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        try {
+            response = client.generateReport(TOKEN_PREFIX + token).execute();
+        } catch (IOException e) {
+            Log.d("error", e.getMessage());
+        }
+
+        if (response != null && response.body() != null) {
+            String filename = response.headers().get("Content-Disposition").replaceFirst("(?i)^.*filename=\"?([^\"]+)\"?.*$", "$1");
+            return FileUtil.saveToDisk(response.body(), filename);
+        }
+        return null;
     }
 
     public MediatorLiveData<Boolean> createNewUser(MediatorLiveData<Boolean> userCreated, NewUserDto newUserDto) {
@@ -110,6 +109,24 @@ public class BackendAppRepository {
             }
         });
         return user;
+    }
+
+    public void deleteFinance(String token, int id, MediatorLiveData<Boolean> itemDeleted) {
+        client.deleteFinance(TOKEN_PREFIX+token, id).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.code() == 204) {
+                    itemDeleted.setValue(true);
+                } else {
+                    itemDeleted.setValue(false);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                itemDeleted.setValue(false);
+            }
+        });
     }
 
     private List<Finance> mapResponseToFinance(List<FinanceResponseDto> dtos) {

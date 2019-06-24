@@ -10,8 +10,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import es.dmoral.toasty.Toasty;
 import lombok.Getter;
-import pl.wat.tim.mobile.integration.BackendAppRepository;
-import pl.wat.tim.mobile.integration.dto.LoginUserDto;
+import pl.wat.tim.mobile.infrastructure.integration.BackendAppRepository;
+import pl.wat.tim.mobile.infrastructure.integration.dto.LoginUserDto;
 import pl.wat.tim.mobile.model.User;
 import pl.wat.tim.mobile.view.RegistrationActivity;
 
