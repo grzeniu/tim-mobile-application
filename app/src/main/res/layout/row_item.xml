@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:alpha="0.7"
-        app:cardBackgroundColor='@{finance.financeType.equals("INCOME") ? @color/errorColor : @color/successColor}'
+        app:cardBackgroundColor='@{finance.financeType.equals("INCOME") ? @color/successColor : @color/errorColor}'
         app:cardCornerRadius="10dp">
 
         <RelativeLayout
@@ -39,7 +39,7 @@
                 android:layout_marginTop="10dp"
                 android:textStyle="bold"
                 android:layout_below="@id/description"
-                android:text='@{finance.financeType.equals("INCOME") ? "Value: -"+finance.value :"Value: "+finance.value}'  />
+                android:text='@{finance.financeType.equals("INCOME") ? "Value: "+finance.value :"Value: -"+finance.value}'  />
 
             <TextView
                 android:id="@+id/createdDate"

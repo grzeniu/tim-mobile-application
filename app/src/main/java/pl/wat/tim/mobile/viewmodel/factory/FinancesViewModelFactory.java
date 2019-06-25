@@ -5,19 +5,22 @@ import android.content.Context;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import pl.wat.tim.mobile.model.User;
+import pl.wat.tim.mobile.view.FragmentProvider;
 import pl.wat.tim.mobile.viewmodel.FinancesViewModel;
 
 public class FinancesViewModelFactory extends ViewModelProvider.NewInstanceFactory {
+    private FragmentProvider provider;
     private User user;
     private Context context;
 
-    public FinancesViewModelFactory(Context context, User user) {
+    public FinancesViewModelFactory(Context context, User user, FragmentProvider provider) {
         this.context = context;
         this.user = user;
+        this.provider = provider;
     }
 
     @Override
     public <T extends ViewModel> T create(Class<T> modelClass) {
-        return (T) new FinancesViewModel(context, user);
+        return (T) new FinancesViewModel(context, user, provider);
     }
 }

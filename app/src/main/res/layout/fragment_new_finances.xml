@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".view.NewFinancesFragment">
+
+    <data>
+
+        <variable
+            name="financesViewModel"
+            type="pl.wat.tim.mobile.viewmodel.FinancesViewModel" />
+
+        <variable
+            name="spinnerAdapter"
+            type="android.widget.ArrayAdapter" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="top"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <EditText
+            android:id="@+id/editDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:autofillHints="Description"
+            android:hint="Description"
+            android:inputType="text"
+            android:text="@={financesViewModel.description}" />
+
+        <EditText
+            android:id="@+id/editValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:autofillHints="Description"
+            android:hint="Value"
+            android:inputType="number"
+            android:text="@={financesViewModel.value}" />
+
+        <TextView
+            android:id="@+id/textCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="Category:" />
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/spinnerCategory"
+            style="@android:style/Widget.Spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:spinnerMode="dropdown"
+            android:onItemSelected="@{(parent,view,pos,id)->financesViewModel.onSelectCategory(parent,view,pos,id)}"
+            app:adapter="@{spinnerAdapter}" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="Finance type:" />
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/spinnerFinancetype"
+            style="@android:style/Widget.Spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:spinnerMode="dropdown"
+            android:onItemSelected="@{(parent,view,pos,id)->financesViewModel.onSelectFinanceType(parent,view,pos,id)}"
+            android:entries="@array/finance_type" />
+
+        <Button
+            android:id="@+id/addButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:onClick="@{()-> financesViewModel.onAddFinance()}"
+            android:text="Add" />
+
+        <Button
+            android:id="@+id/addBack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:onClick="@{()-> financesViewModel.onBackToFinances()}"
+            android:text="Back" />
+
+        <ProgressBar
+            android:id="@+id/addFinancesProgressBar"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:theme="@style/progressBarYellow"
+            android:visibility="@{financesViewModel.busy}" />
+    </LinearLayout>
+
+</layout>

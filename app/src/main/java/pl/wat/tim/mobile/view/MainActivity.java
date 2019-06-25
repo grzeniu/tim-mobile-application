@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import pl.wat.tim.mobile.R;
 import pl.wat.tim.mobile.databinding.ActivityMainBinding;
@@ -22,7 +23,7 @@ import pl.wat.tim.mobile.viewmodel.FinancesViewModel;
 import pl.wat.tim.mobile.viewmodel.factory.FinancesViewModelFactory;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, FragmentProvider {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity
 
         User user = (User) this.getIntent().getExtras().getSerializable("USER_OBJ");
         final ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        FinancesViewModel viewModel = ViewModelProviders.of(this, new FinancesViewModelFactory(this, user)).get(FinancesViewModel.class);
+        FinancesViewModel viewModel = ViewModelProviders.of(this, new FinancesViewModelFactory(this, user, this)).get(FinancesViewModel.class);
         binding.setFinancesViewModel(viewModel);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -60,6 +61,11 @@ public class MainActivity extends AppCompatActivity
                 .navView, false);
         binding.navView.addHeaderView(bind.getRoot());
         bind.setUsername(username);
+    }
+
+    @Override
+    public <T extends Fragment> void showFragment(T fragment, int containerViewId) {
+        getSupportFragmentManager().beginTransaction().replace(containerViewId, fragment).commit();
     }
 
     @Override

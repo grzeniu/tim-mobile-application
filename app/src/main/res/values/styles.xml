@@ -16,5 +16,8 @@
     <style name="progressBarYellow" parent="@style/Theme.AppCompat">
         <item name="colorAccent">@color/yellow</item>
     </style>
+    <style name="My.Button" parent="ThemeOverlay.AppCompat">
+        <item name="colorAccent">@color/errorColor</item>
+    </style>
 
 </resources>

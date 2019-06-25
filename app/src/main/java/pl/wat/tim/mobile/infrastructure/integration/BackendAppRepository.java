@@ -6,6 +6,7 @@ import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,6 +14,8 @@ import androidx.lifecycle.MediatorLiveData;
 import okhttp3.ResponseBody;
 import pl.wat.tim.mobile.RetrofitClientInstance;
 import pl.wat.tim.mobile.infrastructure.integration.dto.AuthToken;
+import pl.wat.tim.mobile.infrastructure.integration.dto.CategoryDto;
+import pl.wat.tim.mobile.infrastructure.integration.dto.FinanceDto;
 import pl.wat.tim.mobile.infrastructure.integration.dto.FinanceResponseDto;
 import pl.wat.tim.mobile.infrastructure.integration.dto.LoginUserDto;
 import pl.wat.tim.mobile.infrastructure.integration.dto.NewUserDto;
@@ -42,6 +45,8 @@ public class BackendAppRepository {
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     List<Finance> finances = mapResponseToFinance(response.body());
                     data.setValue(finances);
+                } else {
+                    data.setValue(null);
                 }
             }
 
@@ -112,7 +117,7 @@ public class BackendAppRepository {
     }
 
     public void deleteFinance(String token, int id, MediatorLiveData<Boolean> itemDeleted) {
-        client.deleteFinance(TOKEN_PREFIX+token, id).enqueue(new Callback<ResponseBody>() {
+        client.deleteFinance(TOKEN_PREFIX + token, id).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.code() == 204) {
@@ -125,6 +130,63 @@ public class BackendAppRepository {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 itemDeleted.setValue(false);
+            }
+        });
+    }
+
+    public MediatorLiveData<List<String>> getCategories(String token) {
+        MediatorLiveData<List<String>> categories = new MediatorLiveData<>();
+
+        client.getCategories(TOKEN_PREFIX + token).enqueue(new Callback<List<CategoryDto>>() {
+            @Override
+            public void onResponse(Call<List<CategoryDto>> call, Response<List<CategoryDto>> response) {
+                if (response.code() == 200 && response.body() != null) {
+                    categories.setValue(response.body().stream().map(CategoryDto::getName).collect(Collectors.toList()));
+                }
+                categories.setValue(null);
+            }
+
+            @Override
+            public void onFailure(Call<List<CategoryDto>> call, Throwable t) {
+                categories.setValue(null);
+            }
+        });
+
+        return categories;
+    }
+
+    public void addIncome(String token, FinanceDto financeDto, MediatorLiveData<Finance> newFinance) {
+        client.addIncome(TOKEN_PREFIX + token, financeDto).enqueue(new Callback<FinanceResponseDto>() {
+            @Override
+            public void onResponse(Call<FinanceResponseDto> call, Response<FinanceResponseDto> response) {
+                if (response.code() == 201 && response.body() != null) {
+                    newFinance.setValue(mapResponseToFinance(Collections.singletonList(response.body())).get(0));
+                } else {
+                    newFinance.setValue(null);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<FinanceResponseDto> call, Throwable t) {
+                newFinance.setValue(null);
+            }
+        });
+    }
+
+    public void addExpense(String token, FinanceDto financeDto, MediatorLiveData<Finance> newFinance) {
+        client.addExpense(TOKEN_PREFIX + token, financeDto).enqueue(new Callback<FinanceResponseDto>() {
+            @Override
+            public void onResponse(Call<FinanceResponseDto> call, Response<FinanceResponseDto> response) {
+                if (response.code() == 201 && response.body() != null) {
+                    newFinance.setValue(mapResponseToFinance(Collections.singletonList(response.body())).get(0));
+                } else {
+                    newFinance.setValue(null);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<FinanceResponseDto> call, Throwable t) {
+                newFinance.setValue(null);
             }
         });
     }

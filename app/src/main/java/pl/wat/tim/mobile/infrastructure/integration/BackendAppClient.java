@@ -4,6 +4,8 @@ import java.util.List;
 
 import okhttp3.ResponseBody;
 import pl.wat.tim.mobile.infrastructure.integration.dto.AuthToken;
+import pl.wat.tim.mobile.infrastructure.integration.dto.CategoryDto;
+import pl.wat.tim.mobile.infrastructure.integration.dto.FinanceDto;
 import pl.wat.tim.mobile.infrastructure.integration.dto.FinanceResponseDto;
 import pl.wat.tim.mobile.infrastructure.integration.dto.LoginUserDto;
 import pl.wat.tim.mobile.infrastructure.integration.dto.NewUserDto;
@@ -36,4 +38,13 @@ public interface BackendAppClient {
 
     @DELETE("finances/{id}")
     Call<ResponseBody> deleteFinance(@Header("Authorization") String token, @Path("id") Integer id);
+
+    @GET("/categories/eng")
+    Call<List<CategoryDto>> getCategories(@Header("Authorization") String token);
+
+    @POST("/finances/expense")
+    Call<FinanceResponseDto> addExpense(@Header("Authorization") String token, @Body FinanceDto financeDto);
+
+    @POST("/finances/income")
+    Call<FinanceResponseDto> addIncome(@Header("Authorization") String token, @Body FinanceDto financeDto);
 }
